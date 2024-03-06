@@ -28,7 +28,7 @@ public class PlanBBot implements IBot{
             botId=1;
             opponentId=0;
         }
-
+        evaluatePosition(0,false,state);
         return new Move(0,0);
     }
 
@@ -37,18 +37,23 @@ public class PlanBBot implements IBot{
         return "PlanBBot";
     }
 
-    private IMove evaluatePosition(String[][] currentMicroboard, int currentDepth, boolean isMaximizer,IGameState state){
+    private IMove evaluatePosition(int currentDepth, boolean isMaximizer,IGameState state){
         int bestVal = -1000;
         Move bestMove = new Move(0,0);
+        String[][] board = state.getField().getBoard();
         for (int i=0;i<3;i++){
             for (int j=0;j<3;j++){
-                if (Objects.equals(currentMicroboard[i][j], ".")){
-                    currentMicroboard[i][j]=String.valueOf(botId);
-                    int moveval = minimax(currentMicroboard,false,0,state.getField().getBoard());
-                    currentMicroboard[i][j]=".";
+                int x = findMicroBoard(state.getField().getMacroboard())[0][0] * 3 + i;
+                int y = findMicroBoard(state.getField().getMacroboard())[0][1] * 3 + j;
+                if (Objects.equals(state.getField().getBoard()[x][y], ".")){
+                    board[x][y]=String.valueOf(botId);
+                    String[][] boards = {{".",".","."},{".",".","."},{".",".","."}};
+                    boards[i][j] = AVAILABLE_FIELD;
+                    int moveval = minimax(board,isMaximizer,currentDepth,boards);
+                    board[x][y]=".";
                     if (moveval>bestVal){
                         bestVal = moveval;
-                        bestMove = new Move(i,j);
+                        bestMove = new Move(x,y);
                     }
                 }
             }
@@ -56,25 +61,19 @@ public class PlanBBot implements IBot{
         return bestMove;
     }
 
-    private String[][] findMicroBoard(String[][] boards, String[][] board){
+    private int[][] findMicroBoard(String[][] boards){
         int multi = 3;
         for (int i=0;i<3;i++){
             for (int j=0;j<3;j++){
                 if (Objects.equals(boards[i][j], AVAILABLE_FIELD)){
-                    String[][] boardState = new String[3][3];
-                    for (int k = 0;k<3;k++){
-                        for (int l = 0; l<3; l++){
-                            boardState[k][l] = board[i*multi+k][j*multi+l];
-                        }
-                    }
-                    return boardState;
+                    return new int[][]{{i,j}};
                 }
             }
         }
         return null;
     }
 
-    private int minimax(String[][] currentMicroboard,boolean isMax,int currentDepth,String[][] board){
+    private int minimax(String[][] board,boolean isMax,int currentDepth, String[][]boards){
         if (currentDepth == depth){
             return 0; // here we will determine the state of the board
         }
@@ -83,13 +82,14 @@ public class PlanBBot implements IBot{
             int best = -1000;
             for (int i = 0;i<3;i++){
                 for (int j=0;j<3;j++){
-                    if (Objects.equals(currentMicroboard[i][j], ".")){
-                        currentMicroboard[i][j]=String.valueOf(botId);
-                        board[i][j]=String.valueOf(botId);
-                        String[][] boards = {{".",".","."},{".",".","."},{".",".","."}};
+                    int x = findMicroBoard(boards)[0][0] * 3 + i;
+                    int y = findMicroBoard(boards)[0][1] * 3 + j;
+                    if (Objects.equals(board[x][y], ".")){
+                        board[x][y]=String.valueOf(botId);
+                        boards = new String[][]{{".", ".", "."}, {".", ".", "."}, {".", ".", "."}};
                         boards[i][j] = AVAILABLE_FIELD;
-                        best = Math.max(best,minimax(findMicroBoard(boards,board),!isMax,currentDepth+1,board));
-                        currentMicroboard[i][j]=".";
+                        best = Math.max(best,minimax(board,!isMax,currentDepth+1,boards));
+                        board[x][y]=".";
                     }
                 }
             }
@@ -98,13 +98,14 @@ public class PlanBBot implements IBot{
             int best = 1000;
             for (int i = 0;i<3;i++){
                 for (int j=0;j<3;j++){
-                    if (Objects.equals(currentMicroboard[i][j], ".")){
-                        currentMicroboard[i][j]=String.valueOf(opponentId);
-                        board[i][j]=String.valueOf(botId);
-                        String[][] boards = {{".",".","."},{".",".","."},{".",".","."}};
+                    int x = findMicroBoard(boards)[0][0] * 3 + i;
+                    int y = findMicroBoard(boards)[0][1] * 3 + j;
+                    if (Objects.equals(board[x][y], ".")){
+                        board[x][y]=String.valueOf(opponentId);
+                        boards = new String[][]{{".", ".", "."}, {".", ".", "."}, {".", ".", "."}};
                         boards[i][j] = AVAILABLE_FIELD;
-                        best = Math.min(best,minimax(findMicroBoard(boards,board),!isMax,currentDepth+1,board));
-                        currentMicroboard[i][j]=".";
+                        best = Math.min(best,minimax(board,!isMax,currentDepth+1,boards));
+                        board[x][y]=".";
                     }
                 }
             }
