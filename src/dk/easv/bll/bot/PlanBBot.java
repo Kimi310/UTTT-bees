@@ -14,9 +14,10 @@ import java.util.Objects;
 import static dk.easv.bll.field.IField.AVAILABLE_FIELD;
 
 public class PlanBBot implements IBot{
-    private int depth = 5;
+    private int depth = 3;
     private int botId;
     private int opponentId;
+    private String[][] bigBoard = new String[3][3];
     @Override
     public IMove doMove(IGameState state) {
 
@@ -28,8 +29,7 @@ public class PlanBBot implements IBot{
             botId=1;
             opponentId=0;
         }
-        evaluatePosition(0,false,state);
-        return new Move(0,0);
+        return evaluatePosition(0,false,state);
     }
 
     @Override
@@ -75,7 +75,14 @@ public class PlanBBot implements IBot{
 
     private int minimax(String[][] board,boolean isMax,int currentDepth, String[][]boards){
         if (currentDepth == depth){
-            return 0; // here we will determine the state of the board
+            int positionValue=0;
+            for (int i=0;i<3;i++){
+                for (int j=0;j<3;j++){
+                    String[][] microBoard = takeMicroboard(board,i,j);
+                    positionValue +=evalueateMicroBoard(microBoard,i,j);
+                }
+            }
+            return positionValue;
         }
 
         if (isMax){
@@ -111,5 +118,83 @@ public class PlanBBot implements IBot{
             }
             return best;
         }
+    }
+
+    private String[][] takeMicroboard(String[][] board, int x,int y){
+        String[][] boardState = new String[3][3];
+        for (int k = 0;k<3;k++){
+            for (int l = 0; l<3; l++){
+                boardState[k][l] = board[x*3+k][y*3+l];
+            }
+        }
+        return boardState;
+    }
+
+    private int evalueateMicroBoard(String [][] microBoard,int x,int y){
+        String[] checkTable = new String[3];
+        int evaluation =0;
+        int sum =0;
+        for (int i=0;i<3;i++){ // check cols
+            for(int j=0;j<3;j++){
+                checkTable[j] = microBoard[i][j];
+            }
+            evaluation = checkCheckTable(checkTable,x,y);
+            if (evaluation == 10 || evaluation==-10){
+                return evaluation;
+            }
+            sum+=evaluation;
+        }
+        for (int i=0;i<3;i++){ // check rows
+            for(int j=0;j<3;j++){
+                checkTable[j] = microBoard[j][i];
+            }
+            evaluation = checkCheckTable(checkTable,x,y);
+            if (evaluation == 10 || evaluation==-10){
+                return evaluation;
+            }
+            sum+=evaluation;
+        }
+        for (int i = 0; i < 3; i++) { // check diagonal one
+            checkTable[i] = microBoard[i][i];
+        }
+        evaluation = checkCheckTable(checkTable,x,y);
+        if (evaluation == 10 || evaluation==-10){
+            return evaluation;
+        }
+        sum+=evaluation;
+
+        for (int i = 2; i > -1; i--) { // check diagonal two
+            checkTable[i] = microBoard[i][i];
+        }
+        evaluation = checkCheckTable(checkTable,x,y);
+        if (evaluation == 10 || evaluation==-10){
+            return evaluation;
+        }
+        sum+=evaluation;
+        return sum;
+    }
+
+    private int checkCheckTable(String[] checkTable, int x, int y){
+        if (Objects.equals(checkTable[0], String.valueOf(botId)) && Objects.equals(checkTable[1], String.valueOf(botId)) && Objects.equals(checkTable[2], String.valueOf(botId))) {
+            bigBoard[x][y] = String.valueOf(botId);
+            return 10;
+        }
+        if (Objects.equals(checkTable[0], String.valueOf(opponentId)) && Objects.equals(checkTable[1], String.valueOf(opponentId)) && Objects.equals(checkTable[2], String.valueOf(opponentId))) {
+            bigBoard[x][y] = String.valueOf(opponentId);
+            return -10;
+        }
+        if (Objects.equals(checkTable[0], String.valueOf(botId)) && Objects.equals(checkTable[1], String.valueOf(botId)) && !Objects.equals(checkTable[2], String.valueOf(opponentId))){
+            return 4;
+        }
+        if (!Objects.equals(checkTable[0], String.valueOf(opponentId)) && Objects.equals(checkTable[1], String.valueOf(botId)) && !Objects.equals(checkTable[2], String.valueOf(botId))){
+            return 4;
+        }
+        if (Objects.equals(checkTable[0], String.valueOf(opponentId)) && Objects.equals(checkTable[1], String.valueOf(opponentId)) && !Objects.equals(checkTable[2], String.valueOf(botId))){
+            return -4;
+        }
+        if (!Objects.equals(checkTable[0], String.valueOf(botId)) && Objects.equals(checkTable[1], String.valueOf(opponentId)) && !Objects.equals(checkTable[2], String.valueOf(opponentId))){
+            return -4;
+        }
+        return 0;
     }
 }
