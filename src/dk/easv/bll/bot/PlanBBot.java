@@ -38,7 +38,7 @@ public class PlanBBot implements IBot {
     }
 
     private IMove evaluatePosition(int currentDepth, boolean isMaximizer, IGameState state) {
-        int bestVal = -1000;
+        int bestVal = -10000;
         String[][] macroBoard = state.getField().getMacroboard();
 
         // make a deep copy of macroboard
@@ -56,7 +56,7 @@ public class PlanBBot implements IBot {
                     if (findMicroBoard(macroBoardCopy).length<3){
                         depth=4;
                     }else {
-                        depth=2;
+                        depth=3;
                     }
                     int x = findMicroBoard(macroBoardCopy)[k][0] * 3 + i;
                     int y = findMicroBoard(macroBoardCopy)[k][1] * 3 + j;
@@ -84,8 +84,7 @@ public class PlanBBot implements IBot {
                         }
 
                         int moveval = minimax(board, isMaximizer, currentDepth + 1, boards);
-                        System.out.println("Evaluation: " + moveval + " for move " + x + " " + y);
-                        System.out.println(Arrays.deepToString(state.getField().getMacroboard()));
+                       // System.out.println("Value "+moveval+" for move " + x + " "+ y);
                         board[x][y] = ".";
                         if (moveval > bestVal) {
                             bestVal = moveval;
@@ -95,6 +94,7 @@ public class PlanBBot implements IBot {
                 }
             }
         }
+        //System.out.println("///////////////////////////////////");
         return bestMove;
     }
 
@@ -125,18 +125,21 @@ public class PlanBBot implements IBot {
         }
         if (currentDepth == depth || evaluateBigBoard(macroBoardCopy) == 1000 || evaluateBigBoard(macroBoardCopy) == -1000) {
             int positionValue = 0;
+            positionValue += evaluateBigBoard(macroBoardCopy);
+            if(positionValue>900 || positionValue<-900){
+                return positionValue;
+            }
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     String[][] microBoard = takeMicroboard(board, i, j);
                     positionValue += evalueateMicroBoard(microBoard);
                 }
             }
-            positionValue += evaluateBigBoard(macroBoardCopy);
             return positionValue;
         }
 
         if (isMax) {
-            int best = -1000;
+            int best = -10000;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     for (int k = 0; k < findMicroBoard(macroBoardCopy).length; k++) {
@@ -174,7 +177,7 @@ public class PlanBBot implements IBot {
             }
             return best;
         } else {
-            int best = 1000;
+            int best = 10000;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
                     for (int k = 0; k < findMicroBoard(macroBoardCopy).length; k++) {
@@ -356,22 +359,22 @@ public class PlanBBot implements IBot {
         }
         if (Objects.equals(checkTable[0], String.valueOf(botId)) && Objects.equals(checkTable[1], String.valueOf(botId))
                 && !Objects.equals(checkTable[2], String.valueOf(opponentId))) {
-            return 40;
+            return 300;
         }
         if (!Objects.equals(checkTable[0], String.valueOf(opponentId))
                 && Objects.equals(checkTable[1], String.valueOf(botId))
                 && !Objects.equals(checkTable[2], String.valueOf(botId))) {
-            return 40;
+            return 300;
         }
         if (Objects.equals(checkTable[0], String.valueOf(opponentId))
                 && Objects.equals(checkTable[1], String.valueOf(opponentId))
                 && !Objects.equals(checkTable[2], String.valueOf(botId))) {
-            return -40;
+            return -300;
         }
         if (!Objects.equals(checkTable[0], String.valueOf(botId))
                 && Objects.equals(checkTable[1], String.valueOf(opponentId))
                 && !Objects.equals(checkTable[2], String.valueOf(opponentId))) {
-            return -40;
+            return -300;
         }
         return 0;
     }
