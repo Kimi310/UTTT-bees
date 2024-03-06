@@ -14,7 +14,7 @@ import java.util.Objects;
 import static dk.easv.bll.field.IField.AVAILABLE_FIELD;
 
 public class PlanBBot implements IBot {
-    private int depth = 5;
+    private int depth = 4;
     private int botId;
     private int opponentId;
 
@@ -53,6 +53,11 @@ public class PlanBBot implements IBot {
         for (int i = 0; i < 3; i++) {
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < findMicroBoard(macroBoardCopy).length; k++) {
+                    if (findMicroBoard(macroBoardCopy).length<3){
+                        depth=4;
+                    }else {
+                        depth=2;
+                    }
                     int x = findMicroBoard(macroBoardCopy)[k][0] * 3 + i;
                     int y = findMicroBoard(macroBoardCopy)[k][1] * 3 + j;
                     if (Objects.equals(state.getField().getBoard()[x][y], ".")) {
