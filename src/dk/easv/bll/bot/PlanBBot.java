@@ -80,6 +80,7 @@ public class PlanBBot implements IBot {
 
                         int moveval = minimax(board, isMaximizer, currentDepth + 1, boards);
                         System.out.println("Evaluation: " + moveval + " for move " + x + " " + y);
+                        System.out.println(Arrays.deepToString(state.getField().getMacroboard()));
                         board[x][y] = ".";
                         if (moveval > bestVal) {
                             bestVal = moveval;
@@ -113,7 +114,11 @@ public class PlanBBot implements IBot {
     }
 
     private int minimax(String[][] board, boolean isMax, int currentDepth, String[][] boards) {
-        if (currentDepth == depth || evaluateBigBoard(boards) == 1000 || evaluateBigBoard(boards) == -1000) {
+        String[][] macroBoardCopy = new String[3][3];
+        for (int i = 0; i < 3; i++) {
+            macroBoardCopy[i] = Arrays.copyOf(boards[i], 3);
+        }
+        if (currentDepth == depth || evaluateBigBoard(macroBoardCopy) == 1000 || evaluateBigBoard(macroBoardCopy) == -1000) {
             int positionValue = 0;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
@@ -121,7 +126,7 @@ public class PlanBBot implements IBot {
                     positionValue += evalueateMicroBoard(microBoard);
                 }
             }
-            positionValue += evaluateBigBoard(boards);
+            positionValue += evaluateBigBoard(macroBoardCopy);
             return positionValue;
         }
 
@@ -129,34 +134,35 @@ public class PlanBBot implements IBot {
             int best = -1000;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    for (int k = 0; k < findMicroBoard(boards).length; k++) {
-                        int x = findMicroBoard(boards)[k][0] * 3 + i;
-                        int y = findMicroBoard(boards)[k][1] * 3 + j;
+                    for (int k = 0; k < findMicroBoard(macroBoardCopy).length; k++) {
+                        int x = findMicroBoard(macroBoardCopy)[k][0] * 3 + i;
+                        int y = findMicroBoard(macroBoardCopy)[k][1] * 3 + j;
                         if (Objects.equals(board[x][y], ".")) {
                             board[x][y] = String.valueOf(botId);
-                            String[][] placeholder = boards;
-                            boards = checkForBigBoardChange(takeMicroboard(board, i, j), i, j, boards);
+                            macroBoardCopy = checkForBigBoardChange(takeMicroboard(board, i, j), i, j, macroBoardCopy);
                             for (int f = 0; f < 3; f++) {
                                 for (int g = 0; g < 3; g++) {
-                                    if (Objects.equals(boards[f][g], "-1")) {
-                                        boards[f][g] = ".";
+                                    if (Objects.equals(macroBoardCopy[f][g], "-1")) {
+                                        macroBoardCopy[f][g] = ".";
                                     }
                                 }
                             }
-                            if (Objects.equals(boards[i][j], ".")) {
-                                boards[i][j] = AVAILABLE_FIELD;
+                            if (Objects.equals(macroBoardCopy[i][j], ".")) {
+                                macroBoardCopy[i][j] = AVAILABLE_FIELD;
                             } else {
                                 for (int f = 0; f < 3; f++) {
                                     for (int g = 0; g < 3; g++) {
-                                        if (Objects.equals(boards[f][g], ".")) {
-                                            boards[f][g] = AVAILABLE_FIELD;
+                                        if (Objects.equals(macroBoardCopy[f][g], ".")) {
+                                            macroBoardCopy[f][g] = AVAILABLE_FIELD;
                                         }
                                     }
                                 }
                             }
-                            best = Math.max(best, minimax(board, false, currentDepth + 1, boards));
+                            best = Math.max(best, minimax(board, false, currentDepth + 1, macroBoardCopy));
                             board[x][y] = ".";
-                            boards = placeholder;
+                            for (int f = 0; f < 3; f++) {
+                                macroBoardCopy[f] = Arrays.copyOf(boards[f], 3);
+                            }
                         }
                     }
                 }
@@ -166,34 +172,35 @@ public class PlanBBot implements IBot {
             int best = 1000;
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 3; j++) {
-                    for (int k = 0; k < findMicroBoard(boards).length; k++) {
-                        int x = findMicroBoard(boards)[k][0] * 3 + i;
-                        int y = findMicroBoard(boards)[k][1] * 3 + j;
+                    for (int k = 0; k < findMicroBoard(macroBoardCopy).length; k++) {
+                        int x = findMicroBoard(macroBoardCopy)[k][0] * 3 + i;
+                        int y = findMicroBoard(macroBoardCopy)[k][1] * 3 + j;
                         if (Objects.equals(board[x][y], ".")) {
                             board[x][y] = String.valueOf(opponentId);
-                            String[][] placeholder = boards;
-                            boards = checkForBigBoardChange(takeMicroboard(board, i, j), i, j, boards);
+                            macroBoardCopy = checkForBigBoardChange(takeMicroboard(board, i, j), i, j, macroBoardCopy);
                             for (int f = 0; f < 3; f++) {
                                 for (int g = 0; g < 3; g++) {
-                                    if (Objects.equals(boards[f][g], "-1")) {
-                                        boards[f][g] = ".";
+                                    if (Objects.equals(macroBoardCopy[f][g], "-1")) {
+                                        macroBoardCopy[f][g] = ".";
                                     }
                                 }
                             }
-                            if (Objects.equals(boards[i][j], ".")) {
-                                boards[i][j] = AVAILABLE_FIELD;
+                            if (Objects.equals(macroBoardCopy[i][j], ".")) {
+                                macroBoardCopy[i][j] = AVAILABLE_FIELD;
                             } else {
                                 for (int f = 0; f < 3; f++) {
                                     for (int g = 0; g < 3; g++) {
-                                        if (Objects.equals(boards[f][g], ".")) {
-                                            boards[f][g] = AVAILABLE_FIELD;
+                                        if (Objects.equals(macroBoardCopy[f][g], ".")) {
+                                            macroBoardCopy[f][g] = AVAILABLE_FIELD;
                                         }
                                     }
                                 }
                             }
                             best = Math.min(best, minimax(board, true, currentDepth + 1, boards));
                             board[x][y] = ".";
-                            boards = placeholder;
+                            for (int f = 0; f < 3; f++) {
+                                macroBoardCopy[f] = Arrays.copyOf(boards[f], 3);
+                            }
                         }
                     }
                 }
@@ -364,7 +371,11 @@ public class PlanBBot implements IBot {
         return 0;
     }
 
-    private String[][] checkForBigBoardChange(String[][] microBoard, int x, int y, String[][] bigTable) {
+    private String[][] checkForBigBoardChange(String[][] microBoard, int x, int y, String[][] macroBoardCopy) {
+        String[][] bigTable = new String[3][3];
+        for (int i = 0; i < 3; i++) {
+            bigTable[i] = Arrays.copyOf(macroBoardCopy[i], 3);
+        }
         String[] checkTable = new String[3];
         for (int i = 0; i < 3; i++) { // check cols
             for (int j = 0; j < 3; j++) {
