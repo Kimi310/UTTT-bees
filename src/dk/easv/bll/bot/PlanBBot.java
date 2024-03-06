@@ -48,7 +48,7 @@ public class PlanBBot implements IBot{
                     if (Objects.equals(state.getField().getBoard()[x][y], ".")) {
                         board[x][y] = String.valueOf(botId);
                         String[][] placeholder = state.getField().getMacroboard();
-                        String[][] boards=checkForBigBoardChange(takeMicroboard(board,x,y),x,y,state.getField().getMacroboard());
+                        String[][] boards=checkForBigBoardChange(takeMicroboard(board,i,j),i,j,state.getField().getMacroboard());
                         for(int f=0;f<3;f++){
                             for (int g=0;g<3;g++){
                                 if (Objects.equals(boards[f][g], "-1")){
@@ -125,7 +125,7 @@ public class PlanBBot implements IBot{
                         if (Objects.equals(board[x][y], ".")){
                             board[x][y]=String.valueOf(botId);
                             String[][] placeholder = boards;
-                            boards=checkForBigBoardChange(takeMicroboard(board,x,y),x,y,boards);
+                            boards=checkForBigBoardChange(takeMicroboard(board,i,j),i,j,boards);
                             for(int f=0;f<3;f++){
                                 for (int g=0;g<3;g++){
                                     if (Objects.equals(boards[f][g], "-1")){
@@ -162,7 +162,7 @@ public class PlanBBot implements IBot{
                         if (Objects.equals(board[x][y], ".")){
                             board[x][y]=String.valueOf(opponentId);
                             String[][] placeholder = boards;
-                            boards=checkForBigBoardChange(takeMicroboard(board,x,y),x,y,boards);
+                            boards=checkForBigBoardChange(takeMicroboard(board,i,j),i,j,boards);
                             for(int f=0;f<3;f++){
                                 for (int g=0;g<3;g++){
                                     if (Objects.equals(boards[f][g], "-1")){
