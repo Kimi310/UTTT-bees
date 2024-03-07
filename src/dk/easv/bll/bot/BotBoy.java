@@ -6,11 +6,10 @@ import dk.easv.bll.move.IMove;
 import java.util.List;
 import java.util.Random;
 
-public class VolvicBot implements IBot {
+public class BotBoy implements IBot {
 
-    private static final String BOTNAME = "VolvicBot";
+    private static final String botName = "BotBoy";
     private Random rand = new Random();
-    private static final int SIMULATION_COUNT = 50;
     private static int TIME_LIMIT = 111; // 1000 milliseconds
     private static final double EXPLORATION_PARAMETER = 6; // UCT exploration parameter
 
@@ -266,6 +265,6 @@ public class VolvicBot implements IBot {
 
     @Override
     public String getBotName() {
-        return BOTNAME;
+        return botName;
     }
 }
