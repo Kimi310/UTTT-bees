@@ -10,7 +10,8 @@
     <orderEntry type="library" name="de.jensd.fontawesomefx.commons" level="project" />
     <orderEntry type="library" name="de.jensd.fontawesomefx.fontawesome" level="project" />
     <orderEntry type="library" name="de.jensd.fontawesomefx.materialdesignfont" level="project" />
-    <orderEntry type="library" name="jfoenix" level="project" />
+    <orderEntry type="library" name="de.jensd.fontawesomefx" level="project" />
     <orderEntry type="library" name="google.code.gson" level="project" />
+    <orderEntry type="library" name="jfoenix" level="project" />
   </component>
 </module>
