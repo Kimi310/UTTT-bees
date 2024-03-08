@@ -17,10 +17,12 @@ public class PlanBBot implements IBot {
     private int depth = 4;
     private int botId;
     private int opponentId;
+    private long startTime;
+    private Move bestMove = new Move(0, 0);
 
     @Override
     public IMove doMove(IGameState state) {
-
+        startTime = System.currentTimeMillis();
         if (state.getMoveNumber() == 0) {
             botId = 0;
             opponentId = 1;
@@ -46,8 +48,6 @@ public class PlanBBot implements IBot {
         for (int i = 0; i < 3; i++) {
             macroBoardCopy[i] = Arrays.copyOf(macroBoard[i], 3);
         }
-
-        Move bestMove = new Move(0, 0);
         String[][] board = state.getField().getBoard();
 
         for (int i = 0; i < 3; i++) {
@@ -82,7 +82,9 @@ public class PlanBBot implements IBot {
                                 }
                             }
                         }
-
+                        if (System.currentTimeMillis()-startTime>850){
+                            return bestMove;
+                        }
                         int moveval = minimax(board, isMaximizer, currentDepth + 1, boards);
                        // System.out.println("Value "+moveval+" for move " + x + " "+ y);
                         board[x][y] = ".";
@@ -94,7 +96,6 @@ public class PlanBBot implements IBot {
                 }
             }
         }
-        //System.out.println("///////////////////////////////////");
         return bestMove;
     }
 
@@ -123,7 +124,7 @@ public class PlanBBot implements IBot {
         for (int i = 0; i < 3; i++) {
             macroBoardCopy[i] = Arrays.copyOf(boards[i], 3);
         }
-        if (currentDepth == depth || evaluateBigBoard(macroBoardCopy) == 1000 || evaluateBigBoard(macroBoardCopy) == -1000) {
+        if (currentDepth == depth || evaluateBigBoard(macroBoardCopy) == 1000 || evaluateBigBoard(macroBoardCopy) == -1000 || System.currentTimeMillis()-startTime>850) {
             int positionValue = 0;
             positionValue += evaluateBigBoard(macroBoardCopy);
             if(positionValue>900 || positionValue<-900){
